@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP IOT DASHBOARD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+        <script>
+           var gateway = `ws://${window.location.hostname}/ws`;
+            var websocket;
+            var pressedKey = 0;
+            var throttle = 0;
+            var kp = 175;
+            var ki = 15;
+            var kd = 121;
+            var pitch = 50;
+            var roll = 50;
+            var yaw = 50;
+            var data = [7];
+            var s;
+            data[0]= pressedKey;
+            data[1]= roll;
+            data[2]= pitch;
+            data[3]= throttle;
+            data[4]= yaw;
+            data[5]= kp;
+            data[6]= ki;
+            data[7]= kd;
+            window.addEventListener('load', onload);
+            window.addEventListener('keydown', onKeyDown);
+            window.addEventListener('keyup', onKeyUp);
+
+            function onload(event) {
+                initWebSocket();
+            }
+
+            // function getValues(){
+            //     websocket.send("getValues");
+            // }
+
+            function initWebSocket() {
+                console.log('Trying to open a WebSocket connection…');
+                websocket = new WebSocket(gateway);
+                websocket.onopen = onOpen;
+                websocket.onclose = onClose;
+                //websocket.onmessage = onMessage;
+            }
+
+            function onOpen(event) {
+                console.log('Connection opened');
+                // getValues();
+            }
+
+            function onClose(event) {
+                console.log('Connection closed');
+                setTimeout(initWebSocket, 2000);
+            }
+
+            // function updateSliderPWM(element) {
+            //     var sliderNumber = element.id.charAt(element.id.length-1);
+            //     var sliderValue = document.getElementById(element.id).value;
+            //     document.getElementById("sliderValue"+sliderNumber).innerHTML = sliderValue;
+            //     console.log(sliderValue);
+            //     websocket.send(sliderNumber+"s"+sliderValue.toString());
+            // }
+
+            // function onMessage(event) {
+            //     console.log(event.data);
+            //     var myObj = JSON.parse(event.data);
+            //     var keys = Object.keys(myObj);
+
+            //     for (var i = 0; i < keys.length; i++){
+            //         var key = keys[i];
+            //         document.getElementById(key).innerHTML = myObj[key];
+            //         document.getElementById("slider"+ (i+1).toString()).value = myObj[key];
+            //     }
+            // }
+            function onKeyDown(event){
+                if (event.keyCode===103){
+                    //press numpad 7
+                    roll = 20;
+                    data[0]=7;
+                    data[1]=Math.round(roll);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(roll);
+                } else if (event.keyCode===105){
+                    //press numpad 9
+                    roll = 70;
+                    data[0]=9;
+                    data[1]=Math.round(roll);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(roll);
+                    //submitU();
+                } else if (event.keyCode===111){
+                    //press numpad forward slash
+                    pitch=70;
+                    data[0]=10;
+                    data[2]=Math.round(pitch);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(s);
+                    //submitL();
+                } else if (event.keyCode===104){
+                    //press numpad 8
+                    pitch = 20;
+                    data[0]=8;
+                    data[2]=Math.round(pitch);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(pitch);
+                    //submitR();
+                } else if (event.keyCode===81){
+                    //press q
+                    if (throttle < 100){
+                        throttle = throttle + 1;
+                    }
+                    data[0]=11;
+                    data[3]=Math.round(throttle);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(throttle);
+                } else if (event.keyCode===65){
+                    //press a
+                    if (throttle > 0){
+                        throttle = throttle - 1;
+                    }
+                    data[0]=12;
+                    data[3]=Math.round(throttle);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(throttle);
+                } else if (event.keyCode===100){
+                    //press numpad 4
+                    if (kp < 600){
+                        kp += 1;
+                    }
+                    data[0]=4;
+                    data[5]=Math.round(kp);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(kp);
+                    //submitCW();
+                } else if (event.keyCode===97){
+                    //press numpad 1
+                    if(kp > 0){
+                        kp -= 1;
+                    }
+                    data[0]=1;
+                    data[5]=Math.round(kp);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(kp);
+                    //submitCCW();
+                } else if (event.keyCode===101){
+                    //press numpad 5
+                    if (ki < 600){
+                        ki += 1;
+                    }
+                    data[0]=5;
+                    data[6]=Math.round(ki);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(ki);
+                } else if (event.keyCode===98){
+                    //press numpad 2
+                    if(ki > 0){
+                        ki -= 1;
+                    }
+                    data[0]=2;
+                    data[6]=Math.round(ki);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(ki);
+                } else if (event.keyCode===102){
+                    //press numpad 6
+                    if (kd < 600){
+                        kd += 1;
+                    }
+                    data[0]=6;
+                    data[7]=Math.round(kd);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(kd);
+                } else if (event.keyCode===99){
+                    //press numpad 3
+                    if(kd > 0){
+                        kd -= 1;
+                    }
+                    data[0]=3;
+                    data[7]=Math.round(kd);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(kd);
+                } else if (event.keyCode===13){
+                    //press either enter
+                    kp = 157;
+                    ki = 15;
+                    kd = 121;
+                    data[0]=13;
+                    data[5]=Math.round(kp);
+                    data[6]=Math.round(kd);
+                    data[7]=Math.round(kp);
+                    s = JSON.stringify(data);
+                    websocket.send(s);
+                    console.log(kp);
+                    console.log(ki);
+                    console.log(kd);
+                }
+            }
+            // function onKeyUp(event){
+            //     if (event.keyCode===103){
+            //         //submitD();
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //     } else if (event.keyCode===105){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //         //submitU();
+            //     } else if (event.keyCode===111){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //         //submitL();
+            //     } else if (event.keyCode===104){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //         //submitR();
+            //     } else if (event.keyCode===81){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //         //submitF();
+            //     } else if (event.keyCode===65){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //         //submitB();
+            //     } else if (event.keyCode===100){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //         //submitCW();
+            //     } else if (event.keyCode===97){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //         //submitCCW();
+            //     } else if (event.keyCode===101){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //         //submitCCW();
+            //     } else if (event.keyCode===98){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //         //submitCCW();
+            //     } else if (event.keyCode===102){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //     } else if (event.keyCode===99){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //     } else if (event.keyCode===13){
+            //         roll=50;
+            //         pitch=50;
+            //         yaw=50
+            //         data[0]=0;
+            //         data[1]=Math.round(roll);
+            //         data[2]=Math.round(pitch);
+            //         data[4]=Math.round(yaw);
+            //         s = JSON.stringify(data);
+            //         websocket.send(s);
+            //     }
+            // }
+        </script>
+    </body>
+</html>
